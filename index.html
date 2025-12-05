@@ -1,109 +1,162 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>로기네 탈출 5번</title>
+    <title>Escape 6</title>
+
     <style>
-        /* 독도체 폰트 불러오기 */
-        @font-face {
-            font-family: 'Dokdo';
-            src: url('./fonts/Dokdo-Regular.ttf') format('truetype');
-            font-weight: normal;
-            font-style: normal;
+        body {
+            margin: 0;
+            background: black;
+            overflow: hidden;
         }
 
-        /* 전체 배경 이미지 설정 */
-        body {
-            background-image: url('https://github.com/HyoungRokRHee/escape1/raw/main/whole.png?raw=true');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+        #screen {
+            width: 100vw;
             height: 100vh;
-            margin: 0;
-            color: white;
+            object-fit: cover;
+        }
+
+        #uiBox {
+            position: fixed;
+            bottom: 35px;
+            width: 100%;
             text-align: center;
-            font-family: 'Dokdo', sans-serif;
-            font-size: 1.2em;
         }
-        #puzzleSection, #resultSection {
-            display: none;
-            margin-top: 30px; /* 전체 섹션을 아래로 이동 */
-        }
-        img {
-            max-width: 100%;
-            height: auto;
-        }
+
         input, button {
-            padding: 10px;
-            font-size: 1em;
-            margin: 10px 0;
+            padding: 12px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 10px;
+            margin: 6px 0;
         }
-        h2 {
-            margin-top: 50px;
-        }
-        #passwordMessage {
-            font-size: 0.6em; /* 글자 크기 절반으로 줄이기 */
-            margin-top: 20px; /* 아래로 내리기 */
-            line-height: 1.5em; /* 줄 간격 조절 */
-        }
-        #result.success {
-            color: red;
+
+        button {
+            background: rgba(255,255,255,0.85);
             font-weight: bold;
+        }
+
+        audio {
+            width: 80%;
+            margin-bottom: 10px;
         }
     </style>
 </head>
 <body>
 
-    <h2 id="passwordMessage">비밀번호를 입력하세요</h2>
-    <input type="text" id="passwordInput" placeholder="비밀번호 입력">
-    <button id="passwordButton" onclick="checkPassword()">확인</button>
+    <!-- 이미지 화면 -->
+    <img id="screen"
+         src="https://github.com/HyoungRokRHee/escape1/raw/main/first.png?raw=true">
 
-    <div id="puzzleSection">
-        <img src="https://github.com/HyoungRokRHee/escape5/raw/main/escape5.png?raw=true" alt="Puzzle Image">
-        <p>둘레를 구하시오.</p>
-        <input type="text" id="answerInput">
-        <button onclick="checkAnswer()">확인</button>
+    <!-- UI 영역 -->
+    <div id="uiBox">
+
+        <!-- 첫 비밀번호 -->
+        <div id="pw1Box">
+            <input id="pw1" placeholder="비밀번호 입력">
+            <br>
+            <button onclick="checkPw1()">확인</button>
+        </div>
+
+        <!-- 다음 버튼 -->
+        <div id="nextBtn" style="display:none;">
+            <button onclick="goNext()">다음</button>
+        </div>
+
+        <!-- 오디오 + 정답입력 (재사용용) -->
+        <div id="quizBox" style="display:none;">
+            <audio id="audioPlayer" controls></audio>
+            <br>
+            <input id="answerInput" placeholder="정답 입력">
+            <br>
+            <button onclick="checkAnswer()">확인</button>
+        </div>
+
     </div>
 
-    <p id="result"></p>
+<script>
+    const screen = document.getElementById("screen");
 
-    <script>
-        function checkPassword() {
-    const password = document.getElementById("passwordInput").value;
-    if (password === "8877") {
-        document.getElementById("puzzleSection").style.display = "block";
-        document.getElementById("passwordInput").style.display = "none";
-        document.getElementById("passwordButton").style.display = "none"; // ID로 버튼 숨기기
-        const passwordMessage = document.getElementById("passwordMessage");
-        passwordMessage.innerHTML = "너무 구시대적인 방법이였어...<br>효과가 하나도 없어 다른 방법을 써보자<br>수학문제를 풀면서 뇌를 활성화해야겠어..!.";
-        passwordMessage.style.marginTop = "20px"; // 아래로 내리기
-        passwordMessage.style.fontSize = "0.6em"; // 글자 크기 절반으로 줄이기
-    } else {
-        alert("비밀번호가 틀렸습니다. 다시 시도하세요.");
-    }
-}
+    let step = 0;
 
-        function checkAnswer() {
-            const answer = document.getElementById("answerInput").value.toUpperCase();
-            if (answer === "40") {
-                document.body.innerHTML = `
-                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; background-image: url('https://github.com/HyoungRokRHee/escape1/raw/main/whole.png?raw=true'); background-size: cover; margin-top: 30px;">
-                        <h1 style="color: red; font-size: 2em; margin-top: 50px;">3층 성가대실로 가세요.</h1>
-                        <h2 style="color: red; font-size: 1.5em; margin-top: 20px;">비밀번호: 9434</h2>
-                    </div>
-                `;
-            } else {
-                const result = document.getElementById("result");
-                result.textContent = "틀렸습니다. 다시 시도하세요.";
-                result.className = "";
-            }
+    // 1. 첫 비밀번호 (8877)
+    function checkPw1() {
+        if (document.getElementById("pw1").value === "8877") {
+
+            screen.src = "https://github.com/HyoungRokRHee/escape1/raw/main/escape6-1.png?raw=true";
+
+            document.getElementById("pw1Box").style.display = "none";
+            document.getElementById("nextBtn").style.display = "block";
+
+            step = 1;
+
+        } else {
+            alert("비밀번호가 틀렸습니다!");
         }
-    </script>
+    }
+
+    // 2. escape6-1 → escape6-11
+    function goNext() {
+        if (step === 1) {
+
+            screen.src = "https://github.com/HyoungRokRHee/escape1/raw/main/escape6-11.png?raw=true";
+
+            document.getElementById("nextBtn").style.display = "none";
+            document.getElementById("quizBox").style.display = "block";
+
+            document.getElementById("audioPlayer").src =
+                "https://github.com/HyoungRokRHee/escape1/raw/main/insideout1.mp3?raw=true";
+
+            step = 2;
+        }
+    }
+
+    // 정답 입력 처리
+    function checkAnswer() {
+        const answer = document.getElementById("answerInput").value.trim();
+
+        // step 2 → escape6-12
+        if (step === 2 && answer === "인사이드아웃2") {
+
+            screen.src = "https://github.com/HyoungRokRHee/escape1/raw/main/escape6-12.png?raw=true";
+
+            document.getElementById("answerInput").value = "";
+            document.getElementById("audioPlayer").src =
+                "https://github.com/HyoungRokRHee/escape1/raw/main/Zoo1.mp3?raw=true";
+
+            step = 3;
+            return;
+        }
+
+        // step 3 → escape6-13
+        if (step === 3 && answer === "주토피아2") {
+
+            screen.src = "https://github.com/HyoungRokRHee/escape1/raw/main/escape6-13.png?raw=true";
+
+            document.getElementById("answerInput").value = "";
+            document.getElementById("audioPlayer").src =
+                "https://github.com/HyoungRokRHee/escape1/raw/main/Lee1.mp3?raw=true";
+
+            step = 4;
+            return;
+        }
+
+        // step 4 → escape6-3
+        if (step === 4 && answer === "탈주") {
+
+            screen.src = "https://github.com/HyoungRokRHee/escape1/raw/main/escape6-3.png?raw=true";
+
+            document.getElementById("quizBox").style.display = "none";
+
+            step = 5;
+            return;
+        }
+
+        alert("정답이 틀렸습니다!");
+    }
+</script>
 
 </body>
 </html>
